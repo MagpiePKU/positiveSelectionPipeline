@@ -3,6 +3,10 @@ positiveSelectionPipeline
 
 Random perl and shell scripts plus notes for whole genome CDS positive selection detection
 
+Zhang Yi, 20140825, synapse@pku.edu.cn
+
+Please simply cite this github if you use the scripts. 
+
 Note I dont know why the github readme looks bad on web. In UltraEdit the lines and spaces seems fine...
 
 1. Prerequistiques:
