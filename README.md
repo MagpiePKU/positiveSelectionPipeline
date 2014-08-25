@@ -35,8 +35,7 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
     vi.   PhyML builds tree with 100 bootstrap loop
     vii.  label tree branch using the option you choose (HERE always change treelabel.pl before use)
     viii. run PAML on model H0/H1, both are model=2, NSsites=2, runMode=0. The difference is H0 is fixed omega=1 and H1 is free omega  
-    ix.   use shell script and chi2test.pl to get LRT results for each gene group. Significant hits are recorded under Chi2Significant* outputs
-    x.    use BEBsummary.pl to narrow down LRT significant hit list to those with positively selected sites under Bayes Empirical Bayes.
+    ix.   use shell script and chi2test.pl to get LRT results for each gene group. Significant hits are recorded under Chi2Significant* outputs. Narrowed down LRT significant hit list to those with positively selected sites under Bayes Empirical Bayes are also processed. 
     
 3. Outputs:
   a. Chi2RawOutput.txt  //Chi2 result for every gene group
