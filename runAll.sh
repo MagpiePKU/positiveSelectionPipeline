@@ -61,7 +61,6 @@ perl treelabel.pl; ### here add on pica branch only for now. 20140825
 perl testPAML2model.pl;
 ./Ln0Ln1.sh;
 perl chi2test.pl;
-perl BEBsummary.pl;
 
 echo "finished";
 date;
