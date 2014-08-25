@@ -85,6 +85,12 @@ foreach $currentgroup (@groups){
                         }
                 }
                 close ANNOTATION;
+                open (TREE, '<',"$currentgroup.aa.alignment_phyml_tree.txt.mod");
+                while (<TREE>) {
+                        chomp $_;
+                        print H1processed "$_\n";
+                }
+                close TREE;
            $printHeader = 1;
         }
                                 print H1processed "$lines\n";
@@ -102,5 +108,7 @@ foreach $currentgroup (@groups){
                 print processedHit "$currentgroup\n";
         }
 }
+
+system "rm -f Chi2SignificantGroup.PassedBEB.details.txt; cat *.H1.result.hit >> Chi2SignificantGroup.PassedBEB.details.txt;";
 
 close processedHit;
