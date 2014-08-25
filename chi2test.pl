@@ -95,9 +95,12 @@ foreach $currentgroup (@groups){
         close H1processed;
 }
 
+open(processedHit, '>', "Chi2SignificantGroup.PassedBEB.txt");
+
 foreach $currentgroup (@groups){
-        open(processedHit, '>', "Chi2SignificantGroups.PassedBEB.txt");
         if ( -s "$currentgroup.H1.result.hit") {
                 print processedHit "$currentgroup\n";
         }
 }
+
+close processedHit;
