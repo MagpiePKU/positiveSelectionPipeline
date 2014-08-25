@@ -3,6 +3,8 @@ positiveSelectionPipeline
 
 Random perl and shell scripts plus notes for whole genome CDS positive selection detection
 
+Note I dont know why the github readme looks bad on web. In UltraEdit the lines and spaces seems fine...
+
 1. Prerequistiques:
   The programs run under CentOS 6.5 with perl 5.10. Requires the following softwares to be installed to run properly:
   a. orthoMCL
