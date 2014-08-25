@@ -16,10 +16,10 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
   c. Kraken
   d. UCSC faSomeRecords
   e. MUSCLE (I use muscle3.8.31_i86linux64)
-  e. PAL2NAL (I use v12)
-  f. PhyML (I use the 20120412 version)
-  g. PAML (I use 4.8)
-  h. Cufflinks with the gffread program
+  f. PAL2NAL (I use v12)
+  g. PhyML (I use the 20120412 version)
+  h. PAML (I use 4.8)
+  i. Cufflinks with the gffread program
 
 
 2. Working pipeline:
@@ -49,3 +49,15 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
   e. Chi2SignificantResultDetails.txt //Significant Chi2 (P<0.05) groups, detailed codeml output
   f. Group_xxxx.H0.result and Group_xxxx.H1.result  //codeml outputs 
   g. Group_xxxx.H1.result.hit //codeml significant BEB hit only output of Significant Chi2 (P<0.05) groups
+
+4. References:
+  a. PAML: http://abacus.gene.ucl.ac.uk/software/paml.html
+  b. Satsuma: https://www.broadinstitute.org/science/programs/genome-biology/spines
+  c. kraken: https://github.com/nedaz/kraken
+  d. orthoMCL: http://orthomcl.org/
+  e. UCSC utilities: http://hgdownload.cse.ucsc.edu/admin/exe/
+  f. MUSCLE: http://www.drive5.com/muscle/
+  g. PAL2NAL: http://www.bork.embl.de/pal2nal/
+  h. PhyML: http://code.google.com/p/phyml/
+  i. cufflinks: http://cufflinks.cbcb.umd.edu/
+  j. model H0/H1: Clark, A. G. et al. 2003. Inferring non-neutral evolution from human-chimp-mouse orthologous gene trios. Science 302: 1960-1961.
