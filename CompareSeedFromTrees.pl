@@ -146,7 +146,7 @@ $blastcmd = qq{
 $orthomclcmd = qq{
         mysql --socket=/work/mysqldata/mysql.sock -uroot --password="$ARGV[1]" < temp.sql; rm temp.sql -f;
         orthomclInstallSchema orthomcl.temp.config; 
-        orthomclBlastParser temp.blastp.out ./temp.fasta >> temp.orthomcl.similarsequences.txt;
+        orthomclBlastParser temp.blastp.out ./temp.fasta > temp.orthomcl.similarsequences.txt;
         orthomclLoadBlast orthomcl.temp.config temp.orthomcl.similarsequences.txt;
         orthomclPairs orthomcl.temp.config orthomcl.temp.pairs.log cleanup=no;
         orthomclDumpPairsFiles orthomcl.temp.config;
