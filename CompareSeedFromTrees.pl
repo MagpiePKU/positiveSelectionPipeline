@@ -19,6 +19,8 @@
 # species 2 fasta       YYY.fa
 # species 1 REGX        XXX-regx
 # species 2 REGX        YYY-regx
+# species 1 key        XXX-key
+# species 2 key        YYY-key
 # ==========================
 # species 1 is the query, species 2 is the subject!
 # The program will run:
@@ -61,6 +63,12 @@ while (<CONFIG>){
                 if (/species 2 fasta/) {
                                 print "$fields[1]\n";
                                 $SPECIES2fasta = $fields[1]; $species2fasta = 1;}
+                if (/species 1 key/) {
+                                print "$fields[1]\n";
+                                $SPECIES1key = $fields[1]; }
+                if (/species 2 key/) {
+                                print "$fields[1]\n";
+                                $SPECIES2key = $fields[1]; }
 }
 
 
@@ -85,6 +93,8 @@ while (<INPUTGROUP2>){
                 }
 }
 
+close INPUTGROUP1;
+close INPUTGROUP2;
 
 $orthomclconfig = qq{dbVendor=mysql 
 dbConnectString=dbi:mysql:database=orthomcl_temp;mysql_socket=/work/mysqldata/mysql.sock
@@ -146,3 +156,45 @@ $orthomclcmd = qq{
 
 system $blastcmd;
 system $orthomclcmd;
+
+$processcmd = qq{
+                cat temp.orthomcl.groups | grep $SPECIES1key |grep $SPECIES2key |sed -e 's/SPE.|//g' > converged.groups;
+}
+
+system $processcmd;
+
+open (CONV, '<', "converged.groups");
+open (INPUTGROUP1, '<', $inputgroup1);
+open (INPUTGROUP2, '<', $inputgroup2);
+open (CONVANNO, '>', "converged.groups.annotated");
+
+my @list;
+my @convlist;
+
+while (<INPUTGROUP1>){
+                push (@list, $_);
+}
+
+while (<INPUTGROUP2>){
+                 push (@list, $_);
+}
+
+while (<CONV>){
+         @catched1 = $_ =~ m/($SPECIES1REGX)/g;
+         @catched2 = $_ =~ m/($SPECIES2REGX)/g;
+         foreach $item (@catched1){
+                push (@convlist, $item);
+         }
+         foreach $item (@catched2){
+                push (@convlist, $item);
+         }
+}
+
+foreach $item (@list){
+                foreach $convitem (@convlist){
+                                if ($item =~ /$convitem/) {
+                                                print CONVANNO "$item";
+                                }
+                }
+}
+
