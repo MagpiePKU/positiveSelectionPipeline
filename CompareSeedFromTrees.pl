@@ -32,7 +32,7 @@ my $README=qq{
 # 3.run orthomcl for XXX against YYY;
 # 4.combine Chi2positivehits from XXX and YYY as you provided and compare to the new (temp) orthomcl groups, find joint groups. 
 # 5.change gene ID in the output "converge group" to gene name in a new file. 
-# The output files are: 
+# The main output files are: (there are some extra files, for master users)
 # ==========================
 # temp.orthomcl.groups          -- orthomcl-generated gene families 
 # converged.groups              -- gene groups undergoes positive selection (or anything else that you choose) in both 
