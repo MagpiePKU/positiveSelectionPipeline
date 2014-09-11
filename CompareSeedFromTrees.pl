@@ -25,7 +25,7 @@ my $README=qq{
 # species 1 REGX        XXX-regx
 # species 2 REGX        YYY-regx
 # ==========================
-# species 1 is the query, species 2 is the subject!
+# 
 # The program will run:
 # 1.Fetch FA files for the hit list you provided as XXX, YYY (Chi2 positive hits);
 # 2.Make blastdb and BLASTP for XXX against YYY;
