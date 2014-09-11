@@ -244,7 +244,7 @@ while (<CONVGROUPS>){
                 foreach $annot (@convlists){
                         if ($annot =~ /$item/){
                                 @hitzero = split "\t", $annot;
-                                @hit = split "Trichechus", $hitzero[1];
+                                @hit = split "your-favorite-splitter-for-gene-name", $hitzero[1];
                                 last;
                         }
                 }
