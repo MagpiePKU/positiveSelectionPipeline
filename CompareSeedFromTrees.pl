@@ -12,8 +12,9 @@ my $README=qq{
 # positive selection in both trees or not. 
 #
 # run program as:
-# perl CompareSeedFromTrees.pl your-config-file your-sql-password & 
-# (I suppose you use root for sql! Otherwise you may change the -u in the sql command line denoted )
+# perl CompareSeedFromTrees.pl your-config-file & 
+# (I suppose you use root for sql! Otherwise you may change the -u in the sql command line denoted. )
+# You HAVE to change the sql password for the command. See script. 
 #
 # provide config file as:
 # ==========================
@@ -29,7 +30,16 @@ my $README=qq{
 # 1.Fetch FA files for the hit list you provided as XXX, YYY (Chi2 positive hits);
 # 2.Make blastdb and BLASTP for XXX against YYY;
 # 3.run orthomcl for XXX against YYY;
-# 4.combine Chi2positivehits from XXX and YYY as you provided and compare to the new (temp) orthomcl groups, find joint groups. (NOT DONE FOR NOW)
+# 4.combine Chi2positivehits from XXX and YYY as you provided and compare to the new (temp) orthomcl groups, find joint groups. 
+# 5.change gene ID in the output "converge group" to gene name in a new file. 
+# The output files are: 
+# ==========================
+# temp.orthomcl.groups          -- orthomcl-generated gene families 
+# converged.groups              -- gene groups undergoes positive selection (or anything else that you choose) in both 
+#                                  trees (i.e. mammalian and avian groups, for example)
+# converged.groups.annotated    -- same as last file, with annotation. 
+# converged.group-gene-name-mapping             -- changed gene ID to gene names
+# ==========================
 ###################################################################################################################
 };
 
@@ -150,8 +160,9 @@ $blastcmd = qq{ rm query.list -f;
         blastp -db temp.db -query goodProteins.fasta -evalue 1e-6 -max_target_seqs 50 -num_threads 96 -outfmt 6 -out temp.blastp.out;
 };
 
-$orthomclcmd = qw{
-        mysql --socket=/work/mysqldata/mysql.sock -uroot --password="$ARGV[1]" < temp.sql; rm temp.sql -f; ### change your username here
+$orthomclcmd = qq{
+        mysql --socket=/work/mysqldata/mysql.sock -uroot --password="abcdefg" < temp.sql; rm temp.sql -f; 
+        ### change your username and password here
         orthomclInstallSchema orthomcl.temp.config; 
         orthomclBlastParser temp.blastp.out ./temp.fasta >> temp.orthomcl.similarsequences.txt;
         orthomclLoadBlast orthomcl.temp.config temp.orthomcl.similarsequences.txt;
@@ -165,7 +176,11 @@ system $blastcmd;
 system $orthomclcmd;
 
 $processcmd = qq{
-                cat temp.orthomcl.groups | grep $SPECIES1key |grep $SPECIES2key |sed -e 's/SPE.|//g' > converged.groups;
+                cat temp.orthomcl.groups \
+                | grep $SPECIES1key \
+                |grep $SPECIES2key \
+                |sed -e 's/SPE.|//g' \
+                > converged.groups;
 }
 
 system $processcmd;
@@ -211,7 +226,7 @@ foreach $item (@list){
                 }
 }
 
-print CONVANNO join ("\n, @convlists);
+print CONVANNO join ("\n", @convlists);
 
 close INPUTGROUP1;
 close INPUTGROUP2;
