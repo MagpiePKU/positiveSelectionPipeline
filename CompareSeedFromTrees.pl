@@ -1,3 +1,7 @@
+
+use Cwd;
+
+my $README=qq{
 ###################################################################################################################
 # The program compares two "seed" species between different runs of positive selection scans
 # What you need is a config file, ncbi blast+, orthomcl, any gene groups of your species (like generated from a 
@@ -27,8 +31,11 @@
 # 3.run orthomcl for XXX against YYY;
 # 4.combine Chi2positivehits from XXX and YYY as you provided and compare to the new (temp) orthomcl groups, find joint groups. (NOT DONE FOR NOW)
 ###################################################################################################################
+};
 
-use Cwd;
+print $README;
+
+
 
 open (CONFIG, '<', $ARGV[0]);
 
