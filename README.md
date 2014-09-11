@@ -1,5 +1,7 @@
 positiveSelectionPipeline
 =========================
+updated 20140911
+
 
 Random perl and shell scripts plus notes for whole genome CDS positive selection detection
 
@@ -21,6 +23,16 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
   h. PAML (I use 4.8)
   i. Cufflinks with the gffread program
 
+Special notes on orthoMCL: we now recommend a "correct blast" and a "correct installation of MySQL". 
+
+By "correct blast", we mean blasting all proteins from all species at once. Splitting the blast to different machines, such as blasting proteins from a single species against all protein database in one single node, might have cause an unknown problem. A large all-vs-all blast is very expensive, and we have developed a tool for you that you could select a few "seed" species, subdivide your species to groups that contain any of these seeds, perform positive selection test on these subgroups, and then combine and converge those "selected gene families" from species groups. 
+
+By "correct installation of MySQL", we now found that MySQL might be quite problematic. So titrate the MySQL config file before running large sets of data. As a standard, we performed 8-mammalian-species orthomcl on a CentOS machine (E5-4680) with single CPU within 1.5 hours. Anything longer than this is abnormal and should be stopped and check. As a superstitution, we used:
+
+myisam_sort_buffer_size=700G
+myisam_max_sort_file_size=4000G
+
+and nothing else. This worked. Anything other than this, like changing the key buffer, join buffer, sort buffer etc, does not work in our hand. We manually set MySQL to use MySIAM but not InnoDB. 
 
 2. Working pipeline:
   a. protein grouped by orthoMCL (times undefined. For what we know the orthoMCL system on CentOS is very problematic. Good luck.)
@@ -38,8 +50,10 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
     v.    use PAL2NAL to change protein alignment into codon-matched alignment
     vi.   PhyML builds tree with 100 bootstrap loop
     vii.  label tree branch using the option you choose (HERE always change treelabel.pl before use)
-    viii. run PAML on model H0/H1, both are model=2, NSsites=2, runMode=0. The difference is H0 is fixed omega=1 and H1 is free omega  
+    viii. run PAML on model H0/H1, both are model=2, NSsites=2, runMode=0. The difference is H0 is fixed omega=1 and H1 is free omega  (NOTE now we provide a script that runs PAML in parallel)
     ix.   use shell script and chi2test.pl to get LRT results for each gene group. Significant hits are recorded under Chi2Significant* outputs. Narrowed down LRT significant hit list to those with positively selected sites under Bayes Empirical Bayes are also processed. 
+  
+  f.  run a perl script which goes through your 'seed' species, combine the positive selection results, and converge them to find any converging evolution signature. 
     
 3. Outputs:
   a. Chi2RawOutput.txt  //Chi2 result for every gene group
@@ -49,6 +63,7 @@ Note I dont know why the github readme looks bad on web. In UltraEdit the lines 
   e. Chi2SignificantResultDetails.txt //Significant Chi2 (P<0.05) groups, detailed codeml output
   f. Group_xxxx.H0.result and Group_xxxx.H1.result  //codeml outputs 
   g. Group_xxxx.H1.result.hit //codeml significant BEB hit only output of Significant Chi2 (P<0.05) groups
+  h. Outputs from the CompareSeedFromTrees.pl (labelled in that script). 
 
 4. References:
   a. PAML: http://abacus.gene.ucl.ac.uk/software/paml.html
