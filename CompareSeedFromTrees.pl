@@ -9,7 +9,7 @@
 #
 # run program as:
 # perl CompareSeedFromTrees.pl your-config-file your-sql-password & 
-# (I suppose you use root for sql! Otherwise you may change the -u in )
+# (I suppose you use root for sql! Otherwise you may change the -u in the sql command line denoted )
 #
 # provide config file as:
 # ==========================
@@ -19,8 +19,6 @@
 # species 2 fasta       YYY.fa
 # species 1 REGX        XXX-regx
 # species 2 REGX        YYY-regx
-# species 1 key        XXX-key
-# species 2 key        YYY-key
 # ==========================
 # species 1 is the query, species 2 is the subject!
 # The program will run:
@@ -63,12 +61,6 @@ while (<CONFIG>){
                 if (/species 2 fasta/) {
                                 print "$fields[1]\n";
                                 $SPECIES2fasta = $fields[1]; $species2fasta = 1;}
-                if (/species 1 key/) {
-                                print "$fields[1]\n";
-                                $SPECIES1key = $fields[1]; }
-                if (/species 2 key/) {
-                                print "$fields[1]\n";
-                                $SPECIES2key = $fields[1]; }
 }
 
 
@@ -78,23 +70,31 @@ open (QUERY2, '>',"$inputgroup2.query.list");
 while (<INPUTGROUP1>){
                 @catched = $_ =~ m/($SPECIES1REGX)/g;
                 foreach $item (@catched) {
-                                if (defined ($totalGeneTable{$item})) {next;}
+                                if (exists $totalGeneTable{$item}) {$item = "";next;}
                                 else { print QUERY1 "$item\n"; 
                                 $totalGeneTable{$item} = 1; }
                 }
+                @catched = "";
 }
 
 while (<INPUTGROUP2>){
                 @catched = $_ =~ m/($SPECIES2REGX)/g;
                 foreach $item (@catched) {
-                                if (defined ($totalGeneTable{$item})) {next;}
+                                if (exists $totalGeneTable{$item}) {$item = "";next;}
                                 else { print QUERY2 "$item\n"; 
                                 $totalGeneTable{$item} = 1; }
                 }
+                @catched = "";
 }
 
 close INPUTGROUP1;
 close INPUTGROUP2;
+
+open (TOTAL, ">temp.totalGeneTable");
+
+print TOTAL join ("\n", keys(%totalGeneTable));
+
+close TOTAL;
 
 $orthomclconfig = qq{dbVendor=mysql 
 dbConnectString=dbi:mysql:database=orthomcl_temp;mysql_socket=/work/mysqldata/mysql.sock
@@ -127,11 +127,11 @@ close SQLCMD;
 
 
 
-$blastcmd = qq{ 
+$blastcmd = qq{ rm query.list -f;
         cat $inputgroup1.query.list >> query.list; 
         cat $inputgroup2.query.list >> query.list; 
-        faSomeRecords $SPECIES1fasta $inputgroup1.query.list $inputgroup1.fasta;
-        faSomeRecords $SPECIES2fasta $inputgroup2.query.list $inputgroup2.fasta;
+        faSomeRecords $SPECIES1fasta temp.totalGeneTable $inputgroup1.fasta;
+        faSomeRecords $SPECIES2fasta temp.totalGeneTable $inputgroup2.fasta;
         orthomclAdjustFasta SPE1 $inputgroup1.fasta 1;
         orthomclAdjustFasta SPE2 $inputgroup2.fasta 1;
         rm -R -f temp.fasta;
@@ -143,10 +143,10 @@ $blastcmd = qq{
         blastp -db temp.db -query goodProteins.fasta -evalue 1e-6 -max_target_seqs 50 -num_threads 96 -outfmt 6 -out temp.blastp.out;
 };
 
-$orthomclcmd = qq{
-        mysql --socket=/work/mysqldata/mysql.sock -uroot --password="$ARGV[1]" < temp.sql; rm temp.sql -f;
+$orthomclcmd = qw{
+        mysql --socket=/work/mysqldata/mysql.sock -uroot --password="$ARGV[1]" < temp.sql; rm temp.sql -f; ### change your username here
         orthomclInstallSchema orthomcl.temp.config; 
-        orthomclBlastParser temp.blastp.out ./temp.fasta > temp.orthomcl.similarsequences.txt;
+        orthomclBlastParser temp.blastp.out ./temp.fasta >> temp.orthomcl.similarsequences.txt;
         orthomclLoadBlast orthomcl.temp.config temp.orthomcl.similarsequences.txt;
         orthomclPairs orthomcl.temp.config orthomcl.temp.pairs.log cleanup=no;
         orthomclDumpPairsFiles orthomcl.temp.config;
@@ -169,7 +169,8 @@ open (INPUTGROUP2, '<', $inputgroup2);
 open (CONVANNO, '>', "converged.groups.annotated");
 
 my @list;
-my @convlist;
+my @convlists.temp;
+my @convlists;
 
 while (<INPUTGROUP1>){
                 push (@list, $_);
@@ -183,18 +184,49 @@ while (<CONV>){
          @catched1 = $_ =~ m/($SPECIES1REGX)/g;
          @catched2 = $_ =~ m/($SPECIES2REGX)/g;
          foreach $item (@catched1){
-                push (@convlist, $item);
+                push (@convlists.temp, $item);
          }
          foreach $item (@catched2){
-                push (@convlist, $item);
+                push (@convlists.temp, $item);
          }
 }
 
 foreach $item (@list){
-                foreach $convitem (@convlist){
+                foreach $convitem (@convlists.temp){
                                 if ($item =~ /$convitem/) {
-                                                print CONVANNO "$item";
+                                        $duplicatehit = 0;
+                                        foreach (@convlist){
+                                                if ($_ =~ /$item/) {$duplicatehit = 1;}
+                                        }
+                                        if ($duplicatehit == 0) {
+                                                push (@convlists, $item);}
                                 }
                 }
 }
 
+print CONVANNO join ("\n, @convlists);
+
+close INPUTGROUP1;
+close INPUTGROUP2;
+close CONV;
+close CONVANNO;
+
+open (CONVGROUPS, '<', "converged.groups");
+open (OUTPUT, '>', "converged.group-gene-name-mapping");
+
+while (<CONVGROUPS>){
+        @array = $_ =~ m/($SPECIES1REGX|$SPECIES2REGX)/g;
+        foreach $item (@array){
+                @hitzero = "";
+                @hit = "";
+                foreach $annot (@convlists){
+                        if ($annot =~ /$item/){
+                                @hitzero = split "\t", $annot;
+                                @hit = split "Trichechus", $hitzero[1];
+                                last;
+                        }
+                }
+                $_ =~ s/$item/$hit[0]/;
+        }
+        print OUTPUT "$_";
+}
