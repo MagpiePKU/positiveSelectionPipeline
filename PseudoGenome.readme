@@ -1,0 +1,14 @@
+Updated 20150721
+
+According to last researches, the public database of genome and annotations carry a huge amount of mis-annotated transcripts. To improve the quality of calls, the pipeline now goes through:
+
+1. producing VCF by mapping population re-sequencing short reads towards a more complete "reference genome" of a closely related species
+2. quality-controlling the VCFs
+3. producing a "pseudo-reference" genome of its own
+4. producing a "pseudo-reference" gff
+5. use the pseudo gff and genome sequence to produce high-quality "pseudotranscripts" and "pseudoproteins"
+6. concatenate the orthoMCL groups with these pseudo-genes
+7. use one pre-built tree of known phylogeny
+8. add PAML usage mark to your chosen branch
+9. pump the new fasta files and tree files back to the parallel PAML pipeline
+
